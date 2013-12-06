@@ -2,6 +2,7 @@
 #define __RESAMPLER_HPP__
 
 #include "Config.hpp"
+#include "cvMedianCut.hpp"
 
 #include <string>
 #include <opencv2/opencv.hpp>
@@ -57,24 +58,47 @@ public:
   }
 
 protected:
-  void reduce_color()
+  static void reduce_color(SizeType nColors, cv::Mat & image)
   {
 #if 0
-    if ( _nColors )
+    // naive color quantization
+    if ( nColors )
     {
-      ASSERT(_output.channels()==3);
+      ASSERT(image.channels()==3);
       typedef unsigned char unchar;
-      unchar d = 256 / _nColors * 4;
-      for ( int i=0; i < _output.cols; i++ )
-        for ( int j=0; j < _output.rows; j++ )
+      unchar d = 256 / nColors * 4;
+      for ( int i=0; i < image.cols; i++ )
+        for ( int j=0; j < image.rows; j++ )
         {
-          unchar b = _output.at<cv::Vec3b>(j, i)[0];
-          unchar g = _output.at<cv::Vec3b>(j, i)[1];
-          unchar r = _output.at<cv::Vec3b>(j, i)[2];
+          unchar b = image.at<cv::Vec3b>(j, i)[0];
+          unchar g = image.at<cv::Vec3b>(j, i)[1];
+          unchar r = image.at<cv::Vec3b>(j, i)[2];
           b = b / d * d;
           g = g / d * d;
           r = r / d * d;
-          _output.at<cv::Vec3b>(j, i) = cv::Vec3b(b, g, r);
+          image.at<cv::Vec3b>(j, i) = cv::Vec3b(b, g, r);
+        }
+    }
+#endif
+
+#if 1
+    // color quantization using median cut
+    if ( nColors )
+    {
+      cvMedianCut cut(nColors);
+      std::vector<cv::Vec3b> data;
+      for ( int i=0; i < image.cols; i++ )
+        for ( int j=0; j < image.rows; j++ )
+        {
+          data.push_back(image.at<cv::Vec3b>(j, i));
+        }
+      cut.process(data);
+      for ( int i=0; i < image.cols; i++ )
+        for ( int j=0; j < image.rows; j++ )
+        {
+          auto res = cut.getResult(i*image.rows+j);
+          INFO("(%u, %u) = (%u, %u, %u)", i, j, res[0], res[1], res[2]);
+          image.at<cv::Vec3b>(j, i) = res;
         }
     }
 #endif
