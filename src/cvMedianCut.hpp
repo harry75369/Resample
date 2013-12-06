@@ -37,13 +37,21 @@ protected:
     }
 
     // second, find median of that dimension
-    unchar median = 0;
     std::vector<unchar> t;
     for ( SizeType i=0; i < c.indices.size(); i++ )
     {
       t.push_back((*_data)[c.indices[i]][component]);
     }
-    median = findMedian<unchar>(t, 0, t.size());
+#ifndef USE_MEAN
+    unchar median = findMedian<unchar>(t, 0, t.size());
+#else
+    SizeType median = 0;
+    for ( SizeType i=0; i < t.size(); i++ )
+    {
+      median += t[i];
+    }
+    median /= t.size();
+#endif
 
     // last, split according to the median
     for ( SizeType i=0; i < c.indices.size(); i++ )

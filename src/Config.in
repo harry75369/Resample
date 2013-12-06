@@ -79,7 +79,7 @@ PRJ_END
 #define WARN(msg,...) _MSG_("WARN",stderr,msg,##__VA_ARGS__)
 #define INFO(msg,...) _MSG_("INFO",stderr,msg,##__VA_ARGS__)
 
-#define LOG_REDIRECT "log.txt"
+//#define LOG_REDIRECT "log.txt"
 #ifdef LOG_REDIRECT
 PRJ_BEGIN
 static inline FILE * getLogFile() {

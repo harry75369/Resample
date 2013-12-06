@@ -97,7 +97,7 @@ protected:
         for ( int j=0; j < image.rows; j++ )
         {
           auto res = cut.getResult(i*image.rows+j);
-          INFO("(%u, %u) = (%u, %u, %u)", i, j, res[0], res[1], res[2]);
+          //INFO("(%u, %u) = (%u, %u, %u)", i, j, res[0], res[1], res[2]);
           image.at<cv::Vec3b>(j, i) = res;
         }
     }

@@ -19,7 +19,6 @@ protected:
     Cluster(const std::vector<T> * data, const std::vector<SizeType> & indices=std::vector<SizeType>())
       : data(data), indices(indices)
     {
-      INFO("%x", data);
     }
 
     bool operator>(const Cluster & other) const
