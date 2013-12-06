@@ -10,3 +10,5 @@ TARGET_LINK_LIBRARIES(DisplayImage ${LIB_OPENCV})
 
 ADD_EXECUTABLE(Resample Resample.cc)
 TARGET_LINK_LIBRARIES(Resample ${LIB_OPENCV} resampler)
+
+ADD_EXECUTABLE(FindMedian FindMedian.cc)

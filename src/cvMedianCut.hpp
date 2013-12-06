@@ -10,6 +10,7 @@ PRJ_BEGIN
 class cvMedianCut : public MedianCut<cv::Vec3b> {
 protected:
   typedef cv::Vec3b T;
+  typedef unsigned char unchar;
   using MedianCut<T>::Cluster;
 
 public:
@@ -20,56 +21,68 @@ public:
   virtual ~cvMedianCut() {}
 
 protected:
-  virtual void split(const Cluster & c, const std::vector<T> & data, Cluster & c1, Cluster & c2)
+  virtual void split(const Cluster & c, Cluster & c1, Cluster & c2)
   {
-    SizeType b_median = 0;
-    SizeType g_median = 0;
-    SizeType r_median = 0;
-    for ( SizeType i=0; i < c.size(); i++ )
+    // first, determine which dimension to split
+    SizeType component = 0;
+    unchar max_l = c.getMaximum(0)[0] - c.getMinimum(0)[0];
+    for ( SizeType i=1; i < 3; i++ )
     {
-      const T & d = data[i];
-      b_median += d[0];
-      g_median += d[1];
-      r_median += d[2];
-    }
-    b_median /= c.size();
-    g_median /= c.size();
-    r_median /= c.size();
-    for ( SizeType i=0; i < c.size(); i++ )
-    {
-      if ( data[i][0] > b_median )
+      unchar l = c.getMaximum(i)[i] - c.getMinimum(i)[i];
+      if ( l > max_l )
       {
-        c1.push_back(i);
+        max_l = l;
+        component = i;
+      }
+    }
+
+    // second, find median of that dimension
+    unchar median = 0;
+    std::vector<unchar> t;
+    for ( SizeType i=0; i < c.indices.size(); i++ )
+    {
+      t.push_back((*_data)[c.indices[i]][component]);
+    }
+    median = findMedian<unchar>(t, 0, t.size());
+
+    // last, split according to the median
+    for ( SizeType i=0; i < c.indices.size(); i++ )
+    {
+      if ( (*_data)[c.indices[i]][component] >= median )
+      {
+        c1.indices.push_back(c.indices[i]);
       }
       else
       {
-        c2.push_back(i);
+        c2.indices.push_back(c.indices[i]);
       }
     }
   }
 
-  virtual void post_process(const std::vector<T> & data)
+  virtual void generate_results()
   {
     for ( SizeType i=0; i < _clusters.size(); i++ )
     {
+      SizeType size = _clusters[i].indices.size();
       SizeType b = 0;
       SizeType g = 0;
       SizeType r = 0;
-      for ( SizeType j=0; j < _clusters[i].size(); j++ )
+      for ( SizeType j=0; j < size; j++ )
       {
-        b += data[_clusters[i][j]][0];
-        g += data[_clusters[i][j]][1];
-        r += data[_clusters[i][j]][2];
+        b += (*_data)[_clusters[i].indices[j]][0];
+        g += (*_data)[_clusters[i].indices[j]][1];
+        r += (*_data)[_clusters[i].indices[j]][2];
       }
-      b /= _clusters[i].size();
-      g /= _clusters[i].size();
-      r /= _clusters[i].size();
-      for ( SizeType j=0; j < _clusters[i].size(); j++ )
+      b /= size;
+      g /= size;
+      r /= size;
+      for ( SizeType j=0; j < size; j++ )
       {
-        _results.insert(std::pair<SizeType, T>(_clusters[i][j], T(b,g,r)));
+        _results[_clusters[i].indices[j]] =  T(b,g,r);
       }
     }
   }
+
 };
 
 PRJ_END
