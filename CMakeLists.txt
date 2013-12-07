@@ -26,3 +26,9 @@ FOREACH(PATH ${CMAKE_INCLUDE_PATH})
 ENDFOREACH()
 MESSAGE(STATUS "=============================================")
 
+# for vim youcompleteme plugin
+STRING(REPLACE ";" "','-I" CMAKE_INCLUDE_PATH_STR "${CMAKE_INCLUDE_PATH}")
+CONFIGURE_FILE(
+  "${PROJECT_SOURCE_DIR}/.ycm_extra_conf.py.in"
+  "${PROJECT_SOURCE_DIR}/.ycm_extra_conf.py"
+)
