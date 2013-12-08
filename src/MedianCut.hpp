@@ -23,6 +23,8 @@ protected:
 
     bool operator>(const Cluster & other) const
     {
+#define USE_LENGTH_TRICK
+#ifndef USE_LENGTH_TRICK
       SizeType s1 = this->indices.size();
       SizeType s2 = other.indices.size();
       if ( s1 > s2 )
@@ -31,6 +33,39 @@ protected:
       }
       return false;
     }
+#else
+    // TODO: redesign to have more flexibility on the
+    // method of cluster comparison of specific type T
+      const SizeType i1 = this->getMaxLenIndex();
+      const SizeType i2 = other.getMaxLenIndex();
+      const T & t1 = this->getMinimum(i1);
+      const T & t2 = this->getMaximum(i1);
+      const T & t3 = other.getMinimum(i2);
+      const T & t4 = other.getMaximum(i2);
+      if ( t2[i1]-t1[i1] > t4[i2]-t3[i2] )
+      {
+        return true;
+      }
+      return false;
+    }
+
+    SizeType getMaxLenIndex() const
+    {
+      SizeType max_index = 0;
+      for ( SizeType i=1; i < 3; i++ )
+      {
+        const T & t1 = getMinimum(i);
+        const T & t2 = getMaximum(i);
+        const T & m1 = getMinimum(max_index);
+        const T & m2 = getMaximum(max_index);
+        if ( t2[i]-t1[i] > m2[max_index]-m1[max_index] )
+        {
+          max_index = i;
+        }
+      }
+      return max_index;
+    }
+#endif
 
     bool operator<(const Cluster & other) const
     {
