@@ -14,6 +14,7 @@ ADD_LIBRARY(resampler STATIC
   BilinearResampler.cpp
   BicubicResampler.cpp
   LanczosResampler.cpp
+  AbstractionResampler.cpp
 )
 TARGET_LINK_LIBRARIES(resampler ${LIB_OPENCV})
 

@@ -15,3 +15,6 @@ ADD_EXECUTABLE(FindMedian FindMedian.cc)
 
 ADD_EXECUTABLE(QuantizeColor QuantizeColor.cc)
 TARGET_LINK_LIBRARIES(QuantizeColor ${LIB_OPENCV})
+
+ADD_EXECUTABLE(Abstract Abstract.cc)
+TARGET_LINK_LIBRARIES(Abstract ${LIB_OPENCV} resampler)
