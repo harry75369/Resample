@@ -58,7 +58,7 @@ void AbstractionResampler::initialize(SizeType w, SizeType h)
     for ( SizeType j=0; j < h; j++ )
     {
       SuperPixel p(i*h+j);
-      p.position = cv::Vec2f(i+.5f, j+.5f);
+      p.position = cv::Vec2f((i+.5f)/w, (j+.5f)/h);
       p.color = _palette[0];
       _superpixels.push_back(p);
 
@@ -101,8 +101,8 @@ void AbstractionResampler::visualizeSuperpixel(cv::Mat & output)
   for ( SizeType i=0; i < _superpixels.size(); i++ )
   {
     const SuperPixel & sp = _superpixels[i];
-    const int x = (int)(sp.position[0]*_input_width/_output_width);
-    const int y = (int)(sp.position[1]*_input_width/_output_width);
+    const int x = (int)(sp.position[0]*_input_width);
+    const int y = (int)(sp.position[1]*_input_height);
     output.at<cv::Vec3b>(y, x) = cv::Vec3b(0, 255, 0);
     for ( int k=0; k < n_neighbors; k++ )
     {

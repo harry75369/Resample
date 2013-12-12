@@ -19,8 +19,8 @@ PRJ_BEGIN
 class AbstractionResampler : public Resampler {
 protected:
   struct SuperPixel {
-    cv::Vec2f position;
-    cv::Vec3f color;
+    cv::Vec2f position; // normalized
+    cv::Vec3f color;    // normalized
     const SizeType id;
     SuperPixel(SizeType id)
       : id(id)
@@ -70,6 +70,14 @@ public:
     cv::Mat holder2;
     lab2bgr(holder, holder2);
     return holder2.at<cv::Vec3b>(0,0);
+  }
+  static inline cv::Vec3f bgr2lab(cv::Vec3b bgr)
+  {
+    cv::Mat holder(cv::Size(1,1),CV_8UC3);
+    holder.at<cv::Vec3b>(0,0) = bgr;
+    cv::Mat holder2;
+    bgr2lab(holder, holder2);
+    return holder2.at<cv::Vec3f>(0,0);
   }
 
 protected:
