@@ -20,7 +20,7 @@ class AbstractionResampler : public Resampler {
 protected:
   struct SuperPixel {
     cv::Vec2f position; // normalized
-    cv::Vec3f color;    // normalized
+    cv::Vec3f color;
     const SizeType id;
     SuperPixel(SizeType id)
       : id(id)
@@ -41,13 +41,17 @@ protected:
   void initialize(SizeType w, SizeType h);
   bool is_done();
   void iterate();
+  void remap_pixels();
+  void update_superpixels();
+  Real slic_distance(SizeType i, SizeType j, SizeType k) const;
+  Real slic_distance(SizeType i, SizeType j, const SuperPixel & sp) const;
   void finalize();
 
 public:
   void visualizeSuperpixel(cv::Mat & output);
 
 public:
-  static inline void bgr2lab(cv::Mat & in, cv::Mat & out)
+  static inline void bgr2lab(const cv::Mat & in, cv::Mat & out)
   {
     // bgr2lab conversion includes two steps:
     // 1. convert data type from CV_8UC3 to CV_32FC3 with scaling
@@ -55,7 +59,7 @@ public:
     in.convertTo(out, CV_32FC3, 1./255);
     cv::cvtColor(out, out, CV_BGR2Lab);
   }
-  static inline void lab2bgr(cv::Mat & in, cv::Mat & out)
+  static inline void lab2bgr(const cv::Mat & in, cv::Mat & out)
   {
     // lab2bgr conversion includes two steps:
     // 1. convert color space from Lab to BGR
@@ -85,6 +89,8 @@ protected:
   SizeType _input_height;
   SizeType _output_width;
   SizeType _output_height;
+  Real _input_area;
+  Real _output_area;
   cv::Mat _input_lab;
   cv::Mat _output_lab;
   SizeType _iteration;
