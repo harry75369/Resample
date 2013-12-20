@@ -18,8 +18,8 @@ int main(int argc, char * argv[])
 
   SizeType w0 = resampler.getInput().cols;
   SizeType h0 = resampler.getInput().rows;
-  SizeType w1 = w0 / 24;
-  SizeType h1 = h0 / 24;
+  SizeType w1 = w0 / 12;
+  SizeType h1 = h0 / 12;
 
   resampler.resample(w1, h1);
 

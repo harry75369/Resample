@@ -11,8 +11,6 @@
 #include "Resampler.hpp"
 
 #include <vector>
-#include <map>
-#include <set>
 
 PRJ_BEGIN
 
@@ -22,13 +20,14 @@ protected:
     cv::Vec2f position; // normalized
     cv::Vec3f color;
     const SizeType id;
+    SizeType  assoc;
     SuperPixel(SizeType id)
-      : id(id)
+      : id(id), assoc(0)
     {}
   };
 
 public:
-  AbstractionResampler(SizeType nc=0)
+  AbstractionResampler(SizeType nc)
     : Resampler(nc)
   {
   }
@@ -38,17 +37,25 @@ public:
   virtual void resample(SizeType w, SizeType h);
 
 protected:
-  void initialize(SizeType w, SizeType h);
+  void initialize(const SizeType w, const SizeType h);
   bool is_done();
   void iterate();
-  void remap_pixels();
-  void update_superpixels();
-  Real slic_distance(SizeType i, SizeType j, SizeType k) const;
-  Real slic_distance(SizeType i, SizeType j, const SuperPixel & sp) const;
   void finalize();
 
 public:
   void visualizeSuperpixel(cv::Mat & output);
+
+protected:
+  void remap_pixels();
+  void update_superpixels();
+  void associate_superpixels();
+  Real refine_palette();
+  void expand_palette();
+  void split_color(SizeType index);
+  void condense_palette();
+  Real slic_distance(SizeType i, SizeType j, const cv::Vec2f & pos, const cv::Vec3f & spcolor) const;
+  std::pair<cv::Vec3f, Real> get_max_eigen(SizeType pidx);
+  std::vector<cv::Vec3f> get_averaged_palette();
 
 public:
   static inline void bgr2lab(const cv::Mat & in, cv::Mat & out)
@@ -67,7 +74,7 @@ public:
     cv::cvtColor(in, out, CV_Lab2BGR);
     out.convertTo(out, CV_8UC3, 255.0);
   }
-  static inline cv::Vec3b lab2bgr(cv::Vec3f lab)
+  static inline cv::Vec3b lab2bgr(const cv::Vec3f & lab)
   {
     cv::Mat holder(cv::Size(1,1),CV_32FC3);
     holder.at<cv::Vec3f>(0,0) = lab;
@@ -75,7 +82,7 @@ public:
     lab2bgr(holder, holder2);
     return holder2.at<cv::Vec3b>(0,0);
   }
-  static inline cv::Vec3f bgr2lab(cv::Vec3b bgr)
+  static inline cv::Vec3f bgr2lab(const cv::Vec3b & bgr)
   {
     cv::Mat holder(cv::Size(1,1),CV_8UC3);
     holder.at<cv::Vec3b>(0,0) = bgr;
@@ -93,11 +100,18 @@ protected:
   Real _output_area;
   cv::Mat _input_lab;
   cv::Mat _output_lab;
+  bool _converged;
+  bool _palette_maxed;
   SizeType _iteration;
   Real _range;
-  std::vector<cv::Vec3f> _palette;
   std::vector<SuperPixel> _superpixels;
   std::vector<std::vector<SizeType> > _pixel_map;
+  std::vector<cv::Vec3f> _palette;
+  Real _prob_o;
+  std::vector<Real> _prob_c;
+  std::vector<std::vector<Real> > _prob_co;
+  std::vector<std::pair<SizeType, SizeType> > _sub_superpixel_pairs;
+  Real _temperature;
 
 };
 
