@@ -137,6 +137,8 @@ void AbstractionResampler::finalize()
     {
       const SuperPixel & sp = _superpixels[i*_output_height+j];
       _output_lab.at<cv::Vec3f>(j, i) = averaged_palette[sp.assoc];
+	  _output_lab.at<cv::Vec3f>(j, i)[1] *= 1.1;
+	  _output_lab.at<cv::Vec3f>(j, i)[2] *= 1.1;
     }
   lab2bgr(_output_lab, _output);
 }
