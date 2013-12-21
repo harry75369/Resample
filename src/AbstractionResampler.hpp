@@ -19,7 +19,7 @@ protected:
   struct SuperPixel {
     cv::Vec2f position; // normalized
     cv::Vec3f color;
-    const SizeType id;
+    SizeType  id;
     SizeType  assoc;
     SuperPixel(SizeType id)
       : id(id), assoc(0)
